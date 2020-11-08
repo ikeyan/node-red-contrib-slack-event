@@ -66,7 +66,7 @@ module.exports = function(RED) {
             read(req, res, next, body => ({raw: body, json: JSON.parse(body)}), debug, {
                 encoding: charset,
                 inflate: true,
-                limit: typeof maxApiRequestSize !== 'number' ? require('bytes').parse(maxApiRe    questSize) : maxApiRequestSize,
+                limit: typeof maxApiRequestSize !== 'number' ? require('bytes').parse(maxApiRequestSize) : maxApiRequestSize,
                 verify: false
             });
         };
