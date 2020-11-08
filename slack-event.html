@@ -1,0 +1,35 @@
+<script type="text/javascript">
+    RED.nodes.registerType('slack-event',{
+        category: 'network',
+        color:"rgb(231, 231, 174)",
+        defaults: {
+            name: {value:""},
+            url: {value: "/", required: true},
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "white-globe.svg",
+        label() {
+            return this.name || `[POST] ${RED.settings.httpNodeRoot.trimEnd("/")}/${this.url.trimStart("/")}` || "slack-event";
+        },
+        labelStyle() {
+            return this.name ? "node_label_italic" : "";
+        },
+    });
+</script>
+
+<script type="text/html" data-template-name="slack-event">
+    <div class="form-row">
+        <label for="node-input-url"><i class="fa fa-globe"></i> <span data-i18n="httpin.label.url"></span></label>
+        <input id="node-input-url" type="text" placeholder="/url">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="slack-event">
+    <p>HTTPエンドポイントを作成し、Webサービスを構成します。</p>
+</script>
+

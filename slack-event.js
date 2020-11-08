@@ -70,7 +70,7 @@ module.exports = function(RED) {
                 verify: false
             });
         };
-        RED.httpNode.post(config.url,
+        RED.httpNode.post(node.url,
             httpMiddleware || noop,
             corsHandler,
             metricsHandler,
@@ -95,5 +95,5 @@ module.exports = function(RED) {
 
         });
     }
-    RED.nodes.registerType("slack event", SlackEventNode);
+    RED.nodes.registerType("slack-event", SlackEventNode);
 }
