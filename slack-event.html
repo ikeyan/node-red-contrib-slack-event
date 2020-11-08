@@ -10,7 +10,7 @@
         outputs: 1,
         icon: "white-globe.svg",
         label() {
-            return this.name || `[POST] ${RED.settings.httpNodeRoot.trimEnd("/")}/${this.url.trimStart("/")}` || "slack-event";
+            return this.name || `[POST] ${RED.settings.httpNodeRoot.replace(/\/$/, '')}/${this.url.replace(/^\//, '')}` || "slack-event";
         },
         labelStyle() {
             return this.name ? "node_label_italic" : "";
