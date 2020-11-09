@@ -1,11 +1,14 @@
 const typeis = require('type-is');
 const contentType = require('content-type');
 const read = require('body-parser/lib/read');
+const bytes = require('bytes');
+const createError = require('http-errors');
 
 module.exports = function(RED) {
     function SlackEventNode(config) {
         RED.nodes.createNode(this, config);
         const node = this;
+        node.log("here");
         if (RED.settings.httpNodeRoot === false) {
             node.warn("slack-event not created");
             return;
@@ -14,11 +17,8 @@ module.exports = function(RED) {
             node.warn("slack-event missing path");
             return;
         }
-        node.url = config.url;
+        node.url = '/' + config.url.replace(/^\//, '');
         node.method = "post";
-        if (node.url[0] !== '/') {
-            node.url = "/" + node.url;
-        }
         const noop = (req, res, next) => { next(); };
         const httpMiddleware = typeof RED.settings.httpNodeMiddleware === "function" && RED.settings.httpNodeMiddleware;
         let corsHandler = noop;
@@ -49,24 +49,30 @@ module.exports = function(RED) {
         const maxApiRequestSize = RED.settings.apiMaxLength || '5mb';
         const jsonParser = function jsonParser(req, res, next) {
             if (req._body) {
-                next(); return;
+                next();
+                return;
             }
             req.body = req.body || {};
             if (!typeis.hasBody(req)) {
-                next(); return;
+                node.warn("slack-event: no body");
+                next();
+                return;
             }
             if (!typeis(req, 'application/json')) {
-                next(); return;
+                node.warn("slack-event: not json");
+                next();
+                return;
             }
             const charset = (contentType.parse(req).parameters.charset || '').toLowerCase() || 'utf-8';
             if (!charset.startsWith('utf-')) {
-                const createError = require('http-errors');
-                next(createError(415, `unsupported charset "${charset.toUpperCase()}"`, {type: 'charset.unsupported', charset})); return;
+                node.warn(`slack-event: not unicode ("${charset.toUpperCase()}")`);
+                next(createError(415, `unsupported charset "${charset.toUpperCase()}"`, {type: 'charset.unsupported', charset}));
+                return;
             }
             read(req, res, next, body => ({raw: body, json: JSON.parse(body)}), debug, {
                 encoding: charset,
                 inflate: true,
-                limit: typeof maxApiRequestSize !== 'number' ? require('bytes').parse(maxApiRequestSize) : maxApiRequestSize,
+                limit: typeof maxApiRequestSize !== 'number' ? bytes.parse(maxApiRequestSize) : maxApiRequestSize,
                 verify: false
             });
         };
